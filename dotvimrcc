@@ -8,14 +8,14 @@ call neobundle#rc(expand('~/.vim/bundle/'))
 " Let NeoBundle manage NeoBundle
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-NeoBundle 'Shougo/vimproc', {
- \ 'build' : {
- \     'windows' : 'make -f make_mingw32.mak',
- \     'cygwin' : 'make -f make_cygwin.mak',
- \     'mac' : 'make -f make_mac.mak',
- \     'unix' : 'make -f make_unix.mak',
- \    },
- \ }
+"NeoBundle 'Shougo/vimproc', {
+ "\ 'build' : {
+ "\     'windows' : 'make -f make_mingw32.mak',
+ "\     'cygwin' : 'make -f make_cygwin.mak',
+ "\     'mac' : 'make -f make_mac.mak',
+ "\     'unix' : 'make -f make_unix.mak',
+ "\    },
+ "\ }
 
 " My Bundles here:
 " Refer to |:NeoBundle-examples|.
@@ -49,6 +49,10 @@ NeoBundle 'scrooloose/nerdtree'
 
 " Git
 NeoBundle 'tpope/vim-fugitive'
+
+" Dash in OS X
+NeoBundle 'rizzatti/funcoo.vim'
+NeoBundle 'rizzatti/dash.vim'
 
 " Installation check.
 NeoBundleCheck
