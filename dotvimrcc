@@ -1,0 +1,137 @@
+if has('vim_starting')
+  set nocompatible               " Be iMproved
+  set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
+
+call neobundle#rc(expand('~/.vim/bundle/'))
+
+" Let NeoBundle manage NeoBundle
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+NeoBundle 'Shougo/vimproc', {
+ \ 'build' : {
+ \     'windows' : 'make -f make_mingw32.mak',
+ \     'cygwin' : 'make -f make_cygwin.mak',
+ \     'mac' : 'make -f make_mac.mak',
+ \     'unix' : 'make -f make_unix.mak',
+ \    },
+ \ }
+
+" My Bundles here:
+" Refer to |:NeoBundle-examples|.
+"
+" Note: You don't set neobundle setting in .gvimrc!
+
+" ...
+
+filetype plugin indent on     " Required!
+syntax enable
+"
+" Brief help
+" :NeoBundleList          - list configured bundles
+" :NeoBundleInstall(!)    - install(update) bundles
+" :NeoBundleClean(!)      - confirm(or auto-approve) removal of unused bundles
+
+NeoBundle 'Lokaltog/vim-easymotion'
+
+" Themes
+NeoBundle 'nanotech/jellybeans.vim'
+
+" Comments
+NeoBundle 'scrooloose/nerdcommenter'
+
+" Search
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/unite-outline'
+
+" File browsing
+NeoBundle 'scrooloose/nerdtree'
+
+" Git
+NeoBundle 'tpope/vim-fugitive'
+
+" Installation check.
+NeoBundleCheck
+
+
+" Use Vim settings, rather than Vi settings (much better!).
+" This must be first, because it changes other options as a side effect.
+set nocompatible
+
+" allow backspacing over everything in insert mode
+set backspace=indent,eol,start
+
+" Don't use Ex mode, use Q for formatting
+map Q gq
+
+" In many terminal emulators the mouse works just fine, thus enable it.
+if has('mouse')
+  set mouse=a
+endif
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+		  \ | wincmd p | diffthis
+endif
+
+" Personal configurations
+syntax on
+" Setup powerline
+set laststatus=2   " Always show the statusline
+python from powerline.vim import setup as powerline_setup
+python powerline_setup()
+python del powerline_setup
+let mapleader=","
+inoremap jk <ESC>
+nmap <silent> <leader>d <Plug>DashSearch " Search in Dash.app 
+nnoremap <leader><space> :noh<cr> " Clean search highlight
+
+" CtrlP settingsdefault
+
+set runtimepath^=~/.vim/bundle/ctrlp.vim
+map <Leader>p :CtrlP<CR>
+let g:ctrlp_user_command = 'find %s -type f'
+
+" Search
+set incsearch
+set ignorecase
+set smartcase
+set showmatch
+nnoremap <tab> %
+vnoremap <tab> %
+
+" Wrapping
+command! -nargs=* Wrap set wrap linebreak nolist
+set number
+set showbreak=…
+
+" List
+nmap <leader>l :set list!<CR>
+"set listchars=tab:▸\ ,eol:¬
+set list
+set listchars=tab:▸\ ,extends:❯,precedes:❮,nbsp:␣
+set showbreak=↪
+
+" Splitting
+nnoremap <leader>w <C-w>v<C-w>l
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Setup Themes
+if has("gui_running")
+	set background=dark
+	colorscheme jellybeans
+else
+	set background=dark
+	colorscheme jellybeans
+endif
+
+" Allow changing buffer without saving it first
+set hidden
+
+" Unite settings
