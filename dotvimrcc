@@ -54,6 +54,12 @@ NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'rizzatti/funcoo.vim'
 NeoBundle 'rizzatti/dash.vim'
 
+" Status line
+NeoBundle 'bling/vim-airline' " So much faster than Powerline! :)
+
+" Filetypes
+NeoBundle 'chrisbra/csv.vim'
+
 " Installation check.
 NeoBundleCheck
 
@@ -78,19 +84,28 @@ endif
 " Only define it when not defined already.
 if !exists(":DiffOrig")
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
-		  \ | wincmd p | diffthis
+    \ | wincmd p | diffthis
 endif
 
 " Personal configurations
 syntax on
+
+" Setup tabs
+set tabstop=8 expandtab shiftwidth=4 softtabstop=4
+
 " Setup powerline
 set laststatus=2   " Always show the statusline
-python from powerline.vim import setup as powerline_setup
-python powerline_setup()
-python del powerline_setup
+"python from powerline.vim import setup as powerline_setup
+"python powerline_setup()
+"python del powerline_setup
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#fnamemod = ':t'
+set noshowmode
+
 let mapleader=","
 inoremap jk <ESC>
-nmap <silent> <leader>d <Plug>DashSearch " Search in Dash.app 
+nmap <silent> <leader>d <Plug>DashSearch " Search in Dash.app
 nnoremap <leader><space> :noh<cr> " Clean search highlight
 
 " CtrlP settingsdefault
@@ -101,6 +116,7 @@ let g:ctrlp_user_command = 'find %s -type f'
 
 " Search
 set incsearch
+set hlsearch
 set ignorecase
 set smartcase
 set showmatch
@@ -109,7 +125,7 @@ vnoremap <tab> %
 
 " Wrapping
 command! -nargs=* Wrap set wrap linebreak nolist
-set number
+set relativenumber
 set showbreak=…
 
 " List
@@ -117,7 +133,7 @@ nmap <leader>l :set list!<CR>
 "set listchars=tab:▸\ ,eol:¬
 set list
 set listchars=tab:▸\ ,extends:❯,precedes:❮,nbsp:␣
-set showbreak=↪
+set showbreak=…
 
 " Splitting
 nnoremap <leader>w <C-w>v<C-w>l
@@ -128,14 +144,28 @@ nnoremap <C-l> <C-w>l
 
 " Setup Themes
 if has("gui_running")
-	set background=dark
-	colorscheme jellybeans
+    set background=dark
+    colorscheme jellybeans
+    hi statusline guibg=#403C41 "Fix white statusline in V split mode
 else
-	set background=dark
-	colorscheme jellybeans
+    set background=dark
+    colorscheme jellybeans
 endif
 
 " Allow changing buffer without saving it first
 set hidden
 
 " Unite settings
+" NERDTree
+map <Leader>n :NERDTree<CR>
+
+" Show trailing whitespaces
+
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+augroup MyAutoCmd
+    autocmd BufWinEnter * if &modifiable && &ft!='unite' | match ExtraWhitespace /\s\+$/ | endif
+autocmd InsertEnter * if &modifiable && &ft!='unite' | match ExtraWhitespace /\s\+\%#\@<!$/ | endif
+autocmd InsertLeave * if &modifiable && &ft!='unite' | match ExtraWhitespace /\s\+$/ | endif
+autocmd BufWinLeave * if &modifiable && &ft!='unite' | call clearmatches() | endif
+augroup END
