@@ -34,6 +34,9 @@ syntax enable
 
 NeoBundle 'Lokaltog/vim-easymotion'
 
+" Code Completation
+NeoBundle 'Valloric/YouCompleteMe'
+
 " Themes
 NeoBundle 'nanotech/jellybeans.vim'
 
@@ -59,6 +62,9 @@ NeoBundle 'bling/vim-airline' " So much faster than Powerline! :)
 
 " Filetypes
 NeoBundle 'chrisbra/csv.vim'
+
+" Syntax Checking
+NeoBundle 'scrooloose/syntastic'
 
 " Installation check.
 NeoBundleCheck
@@ -150,6 +156,7 @@ if has("gui_running")
 else
     set background=dark
     colorscheme jellybeans
+    hi statusline guibg=#403C41 "Fix white statusline in V split mode
 endif
 
 " Allow changing buffer without saving it first
@@ -169,3 +176,6 @@ autocmd InsertEnter * if &modifiable && &ft!='unite' | match ExtraWhitespace /\s
 autocmd InsertLeave * if &modifiable && &ft!='unite' | match ExtraWhitespace /\s\+$/ | endif
 autocmd BufWinLeave * if &modifiable && &ft!='unite' | call clearmatches() | endif
 augroup END
+
+"YCM
+let g:ycm_autoclose_preview_window_after_completion=1
