@@ -1,4 +1,7 @@
 set nocompatible               " Be iMproved
+"===============================================================================
+"                                  NeoBundle                                   "
+"===============================================================================
 
 if has('vim_starting')
   set runtimepath+=~/.vim/bundle/neobundle.vim/
@@ -18,6 +21,7 @@ NeoBundle 'Shougo/vimproc', {
  \    },
  \ }
 
+
 " My Bundles here:
 " Refer to |:NeoBundle-examples|.
 "
@@ -29,15 +33,11 @@ filetype plugin indent on     " Required!
 set autoindent
 syntax enable
 "
-" Brief help
-" :NeoBundleList          - list configured bundles
-" :NeoBundleInstall(!)    - install(update) bundles
-" :NeoBundleClean(!)      - confirm(or auto-approve) removal of unused bundles
 
 NeoBundle 'Lokaltog/vim-easymotion'
 
 " Code Completation
-NeoBundle 'Valloric/YouCompleteMe'
+" NeoBundle 'Valloric/YouCompleteMe'
 
 " Snippet
 NeoBundle 'SirVer/ultisnips'
@@ -45,6 +45,17 @@ NeoBundle 'SirVer/ultisnips'
 " Themes
 NeoBundle 'nanotech/jellybeans.vim'
 NeoBundle 'sjl/badwolf'
+NeoBundle 'tomasr/molokai'
+NeoBundle 'vim-scripts/Wombat'
+NeoBundle 'w0ng/vim-hybrid'
+NeoBundle 'vim-scripts/twilight'
+NeoBundle 'jonathanfilip/vim-lucius'
+NeoBundle 'jpo/vim-railscasts-theme'
+NeoBundle 'vim-scripts/rdark'
+NeoBundle 'djjcast/mirodark'
+
+" Python
+NeoBundle 'davidhalter/jedi-vim'
 
 " Comments
 NeoBundle 'scrooloose/nerdcommenter'
@@ -52,6 +63,7 @@ NeoBundle 'scrooloose/nerdcommenter'
 " Search
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/unite-outline'
+NeoBundle 'rking/ag.vim'
 
 " File browsing
 NeoBundle 'scrooloose/nerdtree'
@@ -64,7 +76,8 @@ NeoBundle 'rizzatti/funcoo.vim'
 NeoBundle 'rizzatti/dash.vim'
 
 " Status line
-NeoBundle 'bling/vim-airline' " So much faster than Powerline! :)
+" NeoBundle 'bling/vim-airline' " So much faster than Powerline! :)
+NeoBundle 'itchyny/lightline.vim'
 
 " Filetypes
 NeoBundle 'chrisbra/csv.vim'
@@ -72,19 +85,50 @@ NeoBundle 'chrisbra/csv.vim'
 " Syntax Checking
 NeoBundle 'scrooloose/syntastic'
 
+" Keyboard shortcuts
+NeoBundle 'tpope/vim-unimpaired'
+
 " Installation check.
 NeoBundleCheck
 
+
+" Basic Options
 filetype plugin indent on     " Required!
 syntax enable
+set matchtime=3
 
-" Use Vim settings, rather than Vi settings (much better!).
-" This must be first, because it changes other options as a side effect.
-set nocompatible
+" Cursorline {{{
+" Only show cursorline in the current window and in normal mode.
+augroup cline
+    au!
+    au WinLeave,InsertEnter * set nocursorline
+    au InsertLeave * set cursorline
+    au WinEnter * call MyWindowEnterHilight()
+augroup END
 
-" Reload vimrc when edited
-autocmd MyAutoCmd BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc
-      \ so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+function! MyWindowEnterHilight() " {{{ Fix for preview will window set cursorline 
+  let currentmode = mode()
+  if currentmode != 'i'
+      set cursorline
+  endif
+endfunction " }}} 
+
+" Resize splits when the window is resized
+au VimResized * :wincmd =
+
+" Line Return {{{
+
+" Make sure Vim returns to the same line when you reopen a file.
+" Thanks, Amit
+augroup line_return
+    au!
+    au BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \     execute 'normal! g`"zvzz' |
+        \ endif
+augroup END
+
+" }}}
 
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
@@ -109,8 +153,11 @@ endif
 syntax on
 
 " Setup tabs
-set tabstop=8 expandtab shiftwidth=2 softtabstop=2
+set tabstop=8 expandtab shiftwidth=4 softtabstop=4
 set smarttab
+set formatoptions=qrn1j
+set textwidth=80
+set colorcolumn=+1
 
 set fcs=vert:│
 
@@ -118,14 +165,144 @@ set fcs=vert:│
 set splitright
 set splitbelow
 
-" Setup powerline
+"================
+" Status Line
+"================
 set laststatus=2   " Always show the statusline
-"python from powerline.vim import setup as powerline_setup
-"python powerline_setup()
-"python del powerline_setup
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#fnamemod = ':t'
+" let g:airline_powerline_fonts = 1
+" let g:airline#extensions#tabline#enabled = 1
+" let g:airline#extensions#tabline#fnamemod = ':t'
+" python from powerline.vim import setup as powerline_setup
+" python powerline_setup()
+" python del powerline_setup
+" lightline.vim {{{
+if neobundle#tap('lightline.vim')
+    " lightline setting {{{
+    let g:lightline = {
+        \ 'colorscheme': 'jellybeans',
+        \ 'mode_map': {
+        \   'n' : 'N',
+        \   'i' : 'I',
+        \   'R' : 'R',
+        \   'v' : 'V',
+        \   'V' : 'V-L',
+        \   'c' : 'COMMAND',
+        \   "\<C-v>": 'V-B',
+        \   's' : 'SELECT',
+        \   'S' : 'S-L',
+        \   "\<C-s>": 'S-B',
+        \   '?': '      '
+        \ },
+        \ 'active': {
+        \   'left': [
+        \       [ 'mode', 'paste' ],
+        \       [ 'fugitive','filename', 'anzu' ],
+        \   ],
+        \   'right': [
+        \       [ 'lineinfo' ],
+        \       [ 'percent' ],
+        \       [ 'filetype', 'syntastic' ],
+        \   ]
+        \ },
+        \ 'component_function': {
+        \   'modified': 'MyModified',
+        \   'readonly': 'MyReadonly',
+        \   'fugitive': 'MyFugitive',
+        \   'filename': 'MyFilename',
+        \   'fileformat': 'MyFileformat',
+        \   'filetype': 'MyFiletype',
+        \   'fileencoding': 'MyFileencoding',
+        \   'mode': 'MyMode',
+        \   'anzu': 'anzu#search_status',
+        \   'absolutepath': 'MyAbsolutepath',
+        \ },
+        \ 'component_expand': {
+        \   'syntastic': 'SyntasticStatuslineFlag',
+        \ },
+        \ 'component_type': {
+        \   'syntastic': 'error',
+        \ }
+        \ }
+  "}}}
+
+  let g:syntastic_mode_map = { 'mode': 'passive' }
+
+  augroup AutoSyntastic
+  autocmd!
+    autocmd BufWritePost *.py,*.c,*.cpp call s:syntastic()
+  augroup END
+
+  function! s:syntastic()
+    SyntasticCheck
+    call lightline#update()
+  endfunction
+
+  function! neobundle#tapped.hooks.on_source(bundle) "{{{
+    let g:unite_force_overwrite_statusline=0
+    let g:vimfiler_force_overwrite_statusline=0
+    let g:vimshell_force_overwrite_statusline=0
+  endfunction "}}}
+
+  function! MyModified() "{{{
+    return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+  endfunction "}}}
+
+  function! MyReadonly() "{{{
+    return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? 'x' : ''
+  endfunction "}}}
+
+  function! MyFilename() "{{{
+    return ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
+          \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
+          \  &ft == 'unite' ? unite#get_status_string() :
+          \  &ft == 'vimshell' ? vimshell#get_status_string() :
+          \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+          \ ('' != MyModified() ? ' ' . MyModified() : '')
+  endfunction "}}}
+
+  function! MyFugitive() "{{{
+    try
+      if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head')
+        let _ = fugitive#head()
+        return strlen(_) ? ' '._ : ''
+      endif
+    catch
+    endtry
+    return ''
+  endfunction "}}}
+
+  function! MyFileformat() "{{{
+    return winwidth('.') > 70 ? &fileformat : ''
+  endfunction "}}}
+
+  function! MyFiletype() "{{{
+    return winwidth('.') > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+  endfunction "}}}
+
+  function! MyFileencoding() "{{{
+    return winwidth('.') > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+  endfunction "}}}
+
+  function! MyMode()
+    let fname = expand('%:t')
+    return fname == '__Tagbar__' ? 'Tagbar' :
+          \ fname == 'ControlP' ? 'CtrlP' :
+          \ fname == '__Gundo__' ? 'Gundo' :
+          \ fname == '__Gundo_Preview__' ? 'Gundo Preview' :
+          \ fname =~ 'NERD_tree' ? 'NERDTree' :
+          \ &ft == 'unite' ? 'Unite' :
+          \ &ft == 'vimfiler' ? 'VimFiler' :
+          \ &ft == 'vimshell' ? 'VimShell' :
+          \ winwidth(0) > 60 ? lightline#mode() : ''
+  endfunction
+
+  function! MyAbsolutepath() "{{{
+      return winwidth('.') > 70 ? '%F' : ''
+  endfunction "}}}
+
+  call neobundle#untap()
+endif
+"}}}
 set noshowmode
 
 
@@ -164,6 +341,28 @@ nnoremap <Leader>p <C-w>p
 let NERDSpaceDelims=1
 
 
+" Backups {{{
+
+set backup                        " enable backups
+set noswapfile                    " it's 2013, Vim.
+
+set undodir=~/.vim/tmp/undo//     " undo files
+set backupdir=~/.vim/tmp/backup// " backups
+set directory=~/.vim/tmp/swap//   " swap files
+
+" Make those folders automatically if they don't already exist.
+if !isdirectory(expand(&undodir))
+    call mkdir(expand(&undodir), "p")
+endif
+if !isdirectory(expand(&backupdir))
+    call mkdir(expand(&backupdir), "p")
+endif
+if !isdirectory(expand(&directory))
+    call mkdir(expand(&directory), "p")
+endif
+
+" }}}
+
 " Search
 set incsearch
 set hlsearch
@@ -180,8 +379,7 @@ set showbreak=…
 
 " List
 nmap <leader>l :set list!<CR>
-"set listchars=tab:▸\ ,eol:¬
-set list
+set nolist
 set listchars=tab:▸\ ,extends:❯,precedes:❮,nbsp:␣
 set showbreak=…
 
@@ -197,10 +395,12 @@ if has("gui_running")
     set background=dark
     colorscheme jellybeans
     hi statusline guibg=#403C41 "Fix white statusline in V split mode
+    hi ColorColumn term=reverse ctermbg=16 guibg=#1C1C1C
 else
     set background=dark
     colorscheme jellybeans
     hi statusline guibg=#403C41 "Fix white statusline in V split mode
+    hi ColorColumn term=reverse ctermbg=16 guibg=#1C1C1C
 endif
 
 " Allow changing buffer without saving it first
@@ -211,8 +411,7 @@ set hidden
 "===============================================================================
 
 " Use the fuzzy matcher for everything
-
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
+" call unite#filters#matcher_default#use(['matcher_fuzzy'])
 " Use the rank sorter for everything
 call unite#filters#sorter_default#use(['sorter_rank'])
 
@@ -234,7 +433,7 @@ nnoremap <silent> [unite]u :<C-u>Unite -buffer-name=buffers buffer file_mru<CR>
 nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<CR>
 
 " Quick outline
-nnoremap <silent> [unite]o :<C-u>Unite -buffer-name=outline -vertical outline<CR>
+nnoremap <silent> [unite]o :<C-u>Unite -silent -winwidth=40 -buffer-name=outline -vertical outline<CR>
 
 " Quick sessions (projects)
 nnoremap <silent> [unite]p :<C-u>Unite -buffer-name=sessions session<CR>
@@ -307,36 +506,40 @@ augroup MyAutoCmd
   autocmd InsertLeave * if &modifiable && &ft!='unite' | match ExtraWhitespace /\s\+$/ | endif
   autocmd BufWinLeave * if &modifiable && &ft!='unite' | call clearmatches() | endif
 augroup END
-
-"YCM
-let g:ycm_autoclose_preview_window_after_completion=1
-let g:ycm_min_num_of_chars_for_completion = 99
-let g:ycm_key_detailed_diagnostics = '<leader>t'
+"===============================================================================
+" YCM
+"===============================================================================
+let g:ycm_autoclose_preview_window_after_completion = 1
+" let g:ycm_autoclose_preview_window_after_insertion = 1
+let g:ycm_add_preview_to_completeopt = 1
 
 "Ultisnips
-"let g:UltiSnipsExpandTrigger="<c-j>"
-"let g:UltiSnipsJumpForwardTrigger="<c-j>"
-"let g:UltiSnipsJumpBackwardTrigger="<c-k>"
-function! g:UltiSnips_Complete()
-    call UltiSnips_ExpandSnippet()
-    if g:ulti_expand_res == 0
-        if pumvisible()
-            return "\<C-n>"
-        else
-            call UltiSnips_JumpForwards()
-            if g:ulti_jump_forwards_res == 0
-               return "\<TAB>"
-            endif
-        endif
-    endif
-    return ""
-endfunction
+let g:UltiSnipsExpandTrigger="<c-j>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
+" function! g:UltiSnips_Complete()
+    " call UltiSnips_ExpandSnippet()
+    " if g:ulti_expand_res == 0
+        " if pumvisible()
+            " return "\<C-n>"
+        " else
+            " call UltiSnips_JumpForwards()
+            " if g:ulti_jump_forwards_res == 0
+               " return "\<TAB>"
+            " endif
+        " endif
+    " endif
+    " return ""
+" endfunction
 
-au BufEnter * exec "inoremap <silent> " . g:UltiSnipsExpandTrigger . " <C-R>=g:UltiSnips_Complete()<cr>"
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+" let g:UltiSnipsExpandTrigger="<tab>"
+" let g:UltiSnipsJumpForwardTrigger="<tab>"
+" let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
+" let g:UltiSnipsExpandTrigger               <tab>
+" let g:UltiSnipsListSnippets                <c-tab>
+" let g:UltiSnipsJumpForwardTrigger          <c-j>
+" let g:UltiSnipsJumpBackwardTrigger         <c-k>
 "===============================================================================
 " Fugitive
 "===============================================================================
@@ -358,3 +561,31 @@ nnoremap <Leader>gg :Gwrite<cr>:Gcommit -m 'update'<cr>:Git push<cr>
 let NERDTreeShowBookmarks=1
 let NERDTreeShowHidden=1
 let NERDTreeIgnore=['\~$', '\.swp$', '\.git', '\.hg', '\.svn', '\.bzr', '\.pyc']
+
+"===============================================================================
+" Use ag for search
+"===============================================================================
+
+if executable('ag')
+  " Use ag in unite grep source.
+  let g:unite_source_grep_command = 'ag'
+  let g:unite_source_grep_default_opts =
+  \ '--line-numbers --nocolor --nogroup --hidden --ignore ' .
+  \  '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.bzr'''
+  let g:unite_source_grep_recursive_opt = ''
+elseif executable('pt')
+  " Use pt in unite grep source.
+  " https://github.com/monochromegane/the_platinum_searcher
+  let g:unite_source_grep_command = 'pt'
+  let g:unite_source_grep_default_opts = '--nogroup --nocolor'
+  let g:unite_source_grep_recursive_opt = ''
+elseif executable('ack-grep')
+  " Use ack in unite grep source.
+  let g:unite_source_grep_command = 'ack-grep'
+  let g:unite_source_grep_default_opts =
+  \ '--no-heading --no-color -a -H'
+  let g:unite_source_grep_recursive_opt = ''
+endif
+
+set ssop-=options    " do not store global and local values in a session
+set ssop-=folds      " do not store folds
