@@ -79,7 +79,7 @@ NeoBundle 'altercation/vim-colors-solarized'
 
 " Python
 NeoBundleLazy 'davidhalter/jedi-vim'
-NeoBundle 'heavenshell/vim-pydocstring'
+" NeoBundle 'heavenshell/vim-pydocstring'
 
 " Comments
 NeoBundle 'scrooloose/nerdcommenter'
@@ -87,11 +87,12 @@ NeoBundle 'scrooloose/nerdcommenter'
 "Unite
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/unite-outline'
+NeoBundle 'Shougo/neomru.vim'
 
 " Search
 NeoBundle 'rking/ag.vim'
 NeoBundleLazy 'osyo-manga/vim-anzu'
-NeoBundle 'osyo-manga/vim-over' " :substitute preview
+" NeoBundle 'osyo-manga/vim-over' " :substitute preview
 
 " File browsing
 NeoBundle 'scrooloose/nerdtree'
@@ -459,8 +460,11 @@ nmap <space> [unite]
 nnoremap <silent> [unite]<space> :<C-u>Unite
       \ -buffer-name=files buffer file_mru bookmark file_rec/async<CR>
 
+" Restore Unite
+nnoremap <silent> [unite]r :<C-u>UniteResume<CR>
+
 " Quick registers
-nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
+nnoremap <silent> [unite]R :<C-u>Unite -buffer-name=register register<CR>
 
 " Quick buffer and mru
 nnoremap <silent> [unite]u :<C-u>Unite -buffer-name=buffers buffer file_mru<CR>
@@ -488,7 +492,7 @@ nnoremap <silent> [unite]d
 nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file_rec/async file/new<CR>
 
 " Quick grep from cwd
-nnoremap <silent> [unite]g :<C-u>Unite -buffer-name=grep grep:.<CR>
+nnoremap <silent> [unite]g :<C-u>Unite -buffer-name=grep -no-start-insert grep:.<CR>
 
 " Quick help
 nnoremap <silent> [unite]h :<C-u>Unite -buffer-name=help help<CR>
@@ -525,11 +529,11 @@ let g:unite_split_rule = "botright"
 " Shorten the default update date of 500ms
 let g:unite_update_time = 200
 
-let g:unite_source_file_mru_limit = 1000
+let g:neomru#file_mru_limit = 1000
 let g:unite_cursor_line_highlight = 'TabLineSel'
 
-let g:unite_source_file_mru_filename_format = ':~:.'
-let g:unite_source_file_mru_time_format = ''
+" let g:neomru#filename_format = ":~:."
+let g:neomru#time_format = ''
 
 " Use ag for search
 
