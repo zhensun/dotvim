@@ -86,8 +86,8 @@ NeoBundle 'scrooloose/nerdcommenter'
 
 "Unite
 NeoBundle 'Shougo/unite.vim'
-NeoBundle 'Shougo/unite-outline'
-NeoBundle 'Shougo/neomru.vim'
+NeoBundleLazy 'Shougo/unite-outline'
+NeoBundleLazy 'neomru.vim'
 
 " Search
 NeoBundle 'rking/ag.vim'
@@ -441,99 +441,112 @@ endif
 " Always leave a space between the comment character and the comment
 let NERDSpaceDelims=1
 
+" Shougo/unite.vim"{{{
+if neobundle#tap('unite.vim')
+    " Config"{{{
+    call neobundle#config({
+        \   'depends': ['Shougo/vimproc'],
+        \   'autoload' : {
+        \     'commands' : [
+        \       {
+        \         'name' : 'Unite',
+        \         'complete' : 'customlist,unite#complete_source'
+        \       },
+        \       'UniteWithCursorWord',
+        \       'UniteWithInput'
+        \     ]
+        \   }
+        \ })"}}}
 
-" Unite Settings {{{
-"===============================================================================
-" Unite
-"===============================================================================
+    " Settings"{{{
+    function! neobundle#tapped.hooks.on_source(bundle)
+        let g:unite_kind_jump_list_after_jump_scroll=0
+        let g:unite_enable_start_insert = 0
+        let g:unite_source_rec_min_cache_files = 1000
+        let g:unite_source_rec_max_cache_files = 5000
+        let g:unite_prompt = '❯ '
+        let g:unite_enable_start_insert = 1
+        let g:unite_source_history_yank_enable = 1
+        let g:unite_split_rule = "botright"
+        let g:unite_update_time = 200
+        let g:unite_cursor_line_highlight = 'TabLineSel'
+        " Open plugin directory by t
+        call unite#custom#alias('directory', 'tabopen', 'tabvimfiler')
+        " Use the fuzzy matcher for everything
+        " call unite#filters#matcher_default#use(['matcher_fuzzy'])
+        " Use the rank sorter for everything
+        call unite#filters#sorter_default#use(['sorter_rank'])
+    endfunction "}}}
 
-" Use the fuzzy matcher for everything
-" call unite#filters#matcher_default#use(['matcher_fuzzy'])
-" Use the rank sorter for everything
-call unite#filters#sorter_default#use(['sorter_rank'])
+    " Unite {{{
+    nnoremap [unite] <Nop>
+    xnoremap [unite] <Nop>
+    nmap <space> [unite]
+    xmap <space> [unite]
 
-" Map space to the prefix for Unite
-nnoremap [unite] <Nop>
-nmap <space> [unite]
+    " General fuzzy search
+    nnoremap <silent> [unite]<space> :<C-u>Unite
+          \ -buffer-name=files buffer file_mru bookmark file_rec/async<CR>
+    " Restore Unite
+    nnoremap <silent> [unite]r :<C-u>UniteResume<CR>
+    " Quick registers
+    nnoremap <silent> [unite]R :<C-u>Unite -buffer-name=register register<CR>
+    " Buffer
+    nnoremap <silent> [unite]b :<C-u>Unite -silent buffer file_mru bookmark<CR>
+    " Source
+    nnoremap <silent> [unite]u :<C-u>Unite
+          \ source -vertical -silent -start-insert<CR>
+    " Quick file search
+    nnoremap <silent> [unite]f :<C-u>Unite
+          \ -buffer-name=files file_rec/async file/new<CR>
+    " File List
+    nnoremap <silent> [unite]F :<C-u>UniteWithBufferDir
+          \ -silent -buffer-name=files file<CR>
+    " Quick outline
+    nnoremap <silent> [unite]o :<C-u>Unite
+          \ -silent -winwidth=40 -buffer-name=outline -vertical outline<CR>
+    " Quick buffer and mru
+    nnoremap <silent> [unite]u :<C-u>Unite -buffer-name=buffers buffer file_mru<CR>
+    " Quick sessions (projects)
+    nnoremap <silent> [unite]p :<C-u>Unite -buffer-name=sessions session<CR>
+    " Quick sources
+    nnoremap <silent> [unite]a :<C-u>Unite -buffer-name=sources source<CR>
+    " Quick snippet
+    nnoremap <silent> [unite]s :<C-u>Unite -buffer-name=snippets neosnippet<CR>
+    " Quickly switch lcd
+    nnoremap <silent> [unite]d :<C-u>Unite
+          \ -buffer-name=change-cwd -default-action=lcd directory_mru<CR>
+    " Quick grep from cwd
+    nnoremap <silent> [unite]g :<C-u>Unite
+          \ -buffer-name=grep -no-start-insert grep:.<CR>
+    " Quick help
+    nnoremap <silent> [unite]h :<C-u>Unite -buffer-name=help help<CR>
+    " Quick line using the word under cursor
+    nnoremap <silent> [unite]l :<C-u>UniteWithCursorWord
+          \ -buffer-name=search_file line<CR>
+    " Line
+    nnoremap <silent> g/ :<C-u>Unite -buffer-name=search line -start-insert -no-quit<CR>
+    " Quick MRU search
+    nnoremap <silent> [unite]m :<C-u>Unite -buffer-name=mru file_mru<CR>
+    " Show Mapping List
+    nnoremap <silent> [unite]M :<C-u>Unite -silent mapping<CR>
+    " Quick find
+    nnoremap <silent> [unite]n :<C-u>Unite -buffer-name=find find:.<CR>
+    " Quick commands
+    nnoremap <silent> [unite]c :<C-u>Unite -buffer-name=commands command<CR>
+    " Show Message
+    nnoremap <silent> [unite]e :<C-u>Unite -silent output:message<CR>
+    " Jump (mnemonic : <C-o> jump to Older cursor position)
+    nnoremap <silent> [unite]<C-o> :<C-u>Unite -silent change jump<CR>
+    "-Unite Plugin Settings--------------"{{{
+    " Fold
+    nnoremap <silent> [unite]z :<C-u>Unite -silent fold -vertical -winwidth=40 -no-start-insert<CR>
+    "}}}
+    "}}}
 
-" General fuzzy search
-nnoremap <silent> [unite]<space> :<C-u>Unite
-      \ -buffer-name=files buffer file_mru bookmark file_rec/async<CR>
-
-" Restore Unite
-nnoremap <silent> [unite]r :<C-u>UniteResume<CR>
-
-" Quick registers
-nnoremap <silent> [unite]R :<C-u>Unite -buffer-name=register register<CR>
-
-" Quick buffer and mru
-nnoremap <silent> [unite]u :<C-u>Unite -buffer-name=buffers buffer file_mru<CR>
-
-" Quick yank history
-nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<CR>
-
-" Quick outline
-nnoremap <silent> [unite]o :<C-u>Unite -silent -winwidth=40 -buffer-name=outline -vertical outline<CR>
-
-" Quick sessions (projects)
-nnoremap <silent> [unite]p :<C-u>Unite -buffer-name=sessions session<CR>
-
-" Quick sources
-nnoremap <silent> [unite]a :<C-u>Unite -buffer-name=sources source<CR>
-
-" Quick snippet
-nnoremap <silent> [unite]s :<C-u>Unite -buffer-name=snippets snippet<CR>
-
-" Quickly switch lcd
-nnoremap <silent> [unite]d
-      \ :<C-u>Unite -buffer-name=change-cwd -default-action=lcd directory_mru<CR>
-
-" Quick file search
-nnoremap <silent> [unite]f :<C-u>Unite -buffer-name=files file_rec/async file/new<CR>
-
-" Quick grep from cwd
-nnoremap <silent> [unite]g :<C-u>Unite -buffer-name=grep -no-start-insert grep:.<CR>
-
-" Quick help
-nnoremap <silent> [unite]h :<C-u>Unite -buffer-name=help help<CR>
-
-" Quick line using the word under cursor
-nnoremap <silent> [unite]l :<C-u>UniteWithCursorWord -buffer-name=search_file line<CR>
-
-" Quick MRU search
-nnoremap <silent> [unite]m :<C-u>Unite -buffer-name=mru file_mru<CR>
-
-" Quick find
-nnoremap <silent> [unite]n :<C-u>Unite -buffer-name=find find:.<CR>
-
-" Quick commands
-nnoremap <silent> [unite]c :<C-u>Unite -buffer-name=commands command<CR>
-
-" Quick bookmarks
-nnoremap <silent> [unite]b :<C-u>Unite -buffer-name=bookmarks bookmark<CR>
-
-" Fuzzy search from current buffer
-" nnoremap <silent> [unite]b :<C-u>UniteWithBufferDir
-      " \ -buffer-name=files -prompt=%\  buffer file_mru bookmark file<CR>
-
-" Quick commands
-nnoremap <silent> [unite]; :<C-u>Unite -buffer-name=history history/command command<CR>
-
-" Start in insert mode
-let g:unite_enable_start_insert = 1
-" Enable history yank source
-let g:unite_source_history_yank_enable = 1
-" Open in bottom right
-let g:unite_split_rule = "botright"
-
-" Shorten the default update date of 500ms
-let g:unite_update_time = 200
-
-let g:neomru#file_mru_limit = 1000
-let g:unite_cursor_line_highlight = 'TabLineSel'
-
-" let g:neomru#filename_format = ":~:."
-let g:neomru#time_format = ''
+    call neobundle#untap()
+endif
+"}}}
 
 " Use ag for search
 
@@ -559,6 +572,38 @@ elseif executable('ack-grep')
 endif
 " }}}
 
+" Shougo/unite-outline {{{
+if neobundle#tap('unite-outline')
+    call neobundle#config({
+        \   'autoload' : {
+        \     'unite_sources' : [
+        \       'outline'
+        \     ],
+        \   }
+        \ })
+    call neobundle#untap()
+endif
+"}}}
+
+" Shuogo/neomru {{{
+if neobundle#tap('neomru.vim')
+    call neobundle#config({
+        \   'autoload' : {
+        \     'unite_sources' : [
+        \       'file_mru',
+        \       'directory_mru'
+        \     ],
+        \   }
+        \ })
+    function! neobundle#tapped.hooks.on_source(bundle)
+      let g:neomru#file_mru_limit = 1000
+      let g:neomru#filename_format = ":~:."
+      let g:neomru#time_format = ''
+    endfunction
+
+    call neobundle#untap()
+endif
+"}}}
 "===============================================================================
 " YCM
 "===============================================================================
