@@ -87,7 +87,7 @@ NeoBundle 'scrooloose/nerdcommenter'
 "Unite
 NeoBundle 'Shougo/unite.vim'
 NeoBundleLazy 'Shougo/unite-outline'
-NeoBundleLazy 'neomru.vim'
+NeoBundleLazy 'Shougo/neomru.vim'
 
 " Search
 NeoBundle 'rking/ag.vim'
