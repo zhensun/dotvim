@@ -427,7 +427,8 @@ if neobundle#tap('lightline.vim')
   endfunction "}}}
 
   function! MyRelativepath() "{{{
-      return winwidth('.')/3 > len(expand('%:h')) ? expand('%:h') : ''
+    let rpath = fnamemodify(expand('%:h'), ':~:.')
+    return winwidth('.')/3 > len(rpath) ? rpath : ''
   endfunction "}}}
 
   call neobundle#untap()
