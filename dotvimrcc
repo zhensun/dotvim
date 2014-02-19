@@ -51,7 +51,6 @@ NeoBundle 'Shougo/vimproc', {
 filetype plugin indent on     " Required!
 set autoindent
 syntax enable
-"
 
 NeoBundle 'Lokaltog/vim-easymotion'
 
@@ -81,8 +80,9 @@ NeoBundle 'altercation/vim-colors-solarized'
 NeoBundleLazy 'davidhalter/jedi-vim'
 " NeoBundle 'heavenshell/vim-pydocstring'
 
-" Comments
+" Editing
 NeoBundle 'scrooloose/nerdcommenter'
+NeoBundleLazy 'godlygeek/tabular'
 
 "Unite
 NeoBundle 'Shougo/unite.vim'
@@ -112,7 +112,7 @@ NeoBundle 'itchyny/lightline.vim'
 NeoBundle 'chrisbra/csv.vim'
 
 " Syntax Checking
-NeoBundle 'scrooloose/syntastic'
+NeoBundleLazy 'scrooloose/syntastic'
 
 " Keyboard shortcuts
 NeoBundle 'tpope/vim-unimpaired'
@@ -538,6 +538,8 @@ if neobundle#tap('unite.vim')
     nnoremap <silent> [unite]e :<C-u>Unite -silent output:message<CR>
     " Jump (mnemonic : <C-o> jump to Older cursor position)
     nnoremap <silent> [unite]<C-o> :<C-u>Unite -silent change jump<CR>
+    " Yank history
+    nnoremap <silent> [unite]y :<C-u>Unite -silent history/yank<CR>
     "-Unite Plugin Settings--------------"{{{
     " Fold
     nnoremap <silent> [unite]z :<C-u>Unite -silent fold -vertical -winwidth=40 -no-start-insert<CR>
@@ -838,6 +840,39 @@ if neobundle#tap('neosnippet.vim')
 endif
 "}}}
 
+" scrooloose/syntastic {{{
+if neobundle#tap('syntastic')
+    " Config {{{
+    call neobundle#config({
+        \   'autoload' : {
+        \     'insert' : 1,
+        \   }
+        \ })
+    " }}}
+    function! neobundle#tapped.hooks.on_source(bundle) "{{{
+        let g:syntastic_python_checkers=['pylint', 'flake8']
+    endfunction "}}}
+    call neobundle#untap()
+endif
+" }}}
+
+" godlygeek/tabular {{{
+if neobundle#tap('tabular')
+    " Config {{{
+    call neobundle#config({
+        \   'autoload' : {
+        \     'insert' : 1,
+        \   }
+        \ })
+    nmap <Leader>a= :Tabularize /=<CR>
+    vmap <Leader>a= :Tabularize /=<CR>
+    nmap <Leader>a: :Tabularize /:\zs<CR>
+    vmap <Leader>a: :Tabularize /:\zs<CR>
+    " }}}
+    call neobundle#untap()
+endif
+" }}}
+
 " ========================================
 " RSI Prevention - keyboard remaps
 " ========================================
@@ -858,7 +893,8 @@ imap <silent> <D-D> -
 " (if there are multiple windows into the same buffer)
 " or kill the buffer entirely if it's the last window looking into that buffer
 function! CloseWindowOrKillBuffer()
-  let number_of_windows_to_this_buffer = len(filter(range(1, winnr('$')), "winbufnr(v:val) == bufnr('%')"))
+  let number_of_windows_to_this_buffer =
+        \ len(filter(range(1, winnr('$')), "winbufnr(v:val) == bufnr('%')"))
 
   " We should never bdelete a nerd tree
   if matchstr(expand("%"), 'NERD') == 'NERD'
